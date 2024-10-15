@@ -29,6 +29,8 @@ public class GeneralService {
     private final GeneralRepository generalRepository;
     private final ModelMapper modelMapper;
     private final TelegramFeignClient telegramFeignClient;
+    private final GeminiService geminiService;
+
 
     public String saveSearchDetails(GeneralRequestDto generalRequestDto) {
         GeneralSearch generalSearch = modelMapper.map(generalRequestDto, GeneralSearch.class);
@@ -58,8 +60,7 @@ public class GeneralService {
     }
 
 
-
-    @Scheduled(fixedDelay = 6000)
+    @Scheduled(fixedDelay = 300000)
     public void getFilters() throws IOException {
         List<GeneralSearch> searchDetails = generalRepository.findAll();
         for (GeneralSearch search : searchDetails) {
@@ -71,65 +72,88 @@ public class GeneralService {
                     Element time = element.getElementsByClass("city_when").first();
                     assert time != null;
                     String timeText = time.text();
-                    if (timeText.contains("bugün")){
+                    if (timeText.contains("bugün")) {
                         String second = timeText.split(",")[1].trim();
                         String result = second.split(" ")[1];
                         if (isTimeAfter(result, search.getSearchDate())) {
-                            Element description = element.getElementsByClass("product-description__content").first();
-                            if (description != null) {
-                                String link = element.getElementsByClass ("item_link").first().attr("href");
-                                String cleanLink = link.substring(0,13);
-                                String baseUrl = "https://bina.az";
-                                StringBuilder fullUrl = new StringBuilder();
-                                fullUrl.append(baseUrl).append(cleanLink);
-                                telegramFeignClient.sendMessage(search.getChatId(),"Yeni elan: \n" + fullUrl.toString() );
-
+                            Elements elementsByAttribute = element.getElementsByAttribute("href");
+                            String link = elementsByAttribute.attr("abs:href");
+                            Document doc2 = Jsoup.connect(link).get();
+                            Element description = doc2.getElementsByClass("product-description__content").first();
+                            if (search.getKeyword() == null || geminiService.analyze(search.getKeyword(), description.text())) {
+                                telegramFeignClient.sendMessage(search.getChatId(), "Yeni elan: \n" + link);
+                                search.setSearchDate(LocalDateTime.now().plusMinutes(1));
                             }
                         }
                     }
                 }
 
-
-
             }
         }
     }
 
-    @Scheduled(fixedDelay = 6000)
-    public void testFilters() throws IOException {
-        Document doc = Jsoup.connect("https://bina.az").get();
-        Elements elements = doc.getElementsByClass("items-i");
-        for (Element element : elements) {
-            Element time = element.getElementsByClass("city_when").first();
-
-            String link = element.getElementsByClass ("item_link").first().attr("href");
-            String linkR = link.substring(0,13);
-            log.info("{}", linkR);
 
 
+////    @Scheduled(fixedDelay = 6000)
+//    public void testFilters() throws IOException {
+//        Document doc = Jsoup.connect("https://bina.az").get();
+//        Elements elements = doc.getElementsByClass("items-i");
+//        for (Element element : elements) {
+//
+//
+//            Elements elementsByAttribute = element.getElementsByAttribute("href");
+//            String links = elementsByAttribute.attr("abs:href");
+////            System.out.println(links);
+//            Document doc2 = Jsoup.connect(links).get();
+//
+//
+////            Element description = doc2.getElementsByClass("product-description__content").first();
+//
+////            assert description != null;
+////            String string = description.toString();
+//            String keyword = "tecili,təcili";
+////            System.out.println(geminiService.analyze(keyword, description.text()));
+//            Element time = element.getElementsByClass("city_when").first();
 //            assert time != null;
 //            String timeText = time.text();
-//            if (timeText.contains("bugün")){
+//            if (timeText.contains("bugün")) {
 //                String second = timeText.split(",")[1].trim();
 //                String result = second.split(" ")[1];
-//                System.out.println(result);
+//
+//
+//                boolean res =    isTimeAfter(result, LocalDateTime.now().plusMinutes(1));
+//
+//
+//                System.out.println("Res : "  + res);
+//
+////            GeneralRequestDto generalRequestDto = new GeneralRequestDto();
+////            System.out.println(processUSerRequest(generalRequestDto, element));
+////            System.out.println(description);
+////            GeneralRequestDto generalRequestDto2 = new GeneralRequestDto();
+////            generalRequestDto2.setGeneralUrl(links);
+////            generalRequestDto2.setDescription(string);
+////            System.out.println(processUSerRequest(generalRequestDto2));
+//
+////            Document doc2 = Jsoup.connect(links).get();
+//
+//
+////            Element time = element.getElementsByClass("city_when").first();
+//
+////                String link = element.getElementsByClass("item_link").first().attr("href");
+////                String linkR = link.substring(0, 13);
+////                Element broker = element.getElementsByClass("products-label").first();
+////            Element description = element.getElementsByClass("product-description__content").first();
+////            System.out.println(description);
+//
+//
+////
+////
+////
+////
+////
+////        }
+//
 //            }
-
-
-
-
-
-        }
-}
-
-
-
-
-
-
-
-
-
-
-
+//        }
+//    }
 }

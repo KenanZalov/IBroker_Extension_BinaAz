@@ -24,7 +24,4 @@ public class SpecificSearch {
 
     private Integer currentPrice;
 
-
-
-
 }

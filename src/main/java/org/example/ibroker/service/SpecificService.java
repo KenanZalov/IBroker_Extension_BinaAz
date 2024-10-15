@@ -29,6 +29,7 @@ public class SpecificService {
         return "Saved";
     }
 
+
     public List<SpecificResponseDto> getDetails() {
         return specificRepository
                 .findAll()
@@ -44,7 +45,7 @@ public class SpecificService {
 
 
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 300000)
     public void getUpdates() throws IOException {
         List<SpecificSearch> details = specificRepository.findAll();
         for (SpecificSearch specificSearch : details) {
@@ -55,7 +56,7 @@ public class SpecificService {
             String number = priceText.replaceAll(" ", "");
             int priceValue = Integer.parseInt(number);
             if (priceValue < specificSearch.getCurrentPrice()){
-                telegramClient.sendMessage(specificSearch.getChatId(), "Qiymət düşdü: \n" + specificSearch.getSpecificUrl());
+                telegramClient.sendMessage(specificSearch.getChatId(), "Qiymət endi: \n" + specificSearch.getSpecificUrl());
             }
         }
         }

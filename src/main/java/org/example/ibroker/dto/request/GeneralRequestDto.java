@@ -18,7 +18,4 @@ public class GeneralRequestDto {
 
     private int agent;
 
-    private LocalDateTime searchDate;
-
-    private String geminiResponse;
 }
