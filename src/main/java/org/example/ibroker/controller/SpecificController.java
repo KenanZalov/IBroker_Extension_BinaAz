@@ -1,7 +1,6 @@
 package org.example.ibroker.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.ibroker.dto.request.GeneralRequestDto;
 import org.example.ibroker.dto.request.SpecificRequestDto;
 import org.example.ibroker.dto.response.SpecificResponseDto;
 import org.example.ibroker.service.SpecificService;

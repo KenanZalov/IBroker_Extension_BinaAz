@@ -25,3 +25,4 @@ public class GeminiService {
         return response.getCandidates().get(0).getContent().getParts().get(0).getText().contains("yes");
     }
 }
+ 
