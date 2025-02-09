@@ -24,6 +24,7 @@ IBroker is a Chrome extension designed for **bina.az**, a real estate listing pl
 - **Gemini AI**: Text analysis for filtering listings
 - **Spring Scheduler**: Periodic tasks execution
 - **ModelMapper**: DTO to Entity conversion
+- **PostgreSQL**: Database
 
 ## 🔍 How It Works
 ### General Service (`GeneralService`)
